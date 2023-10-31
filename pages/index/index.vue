@@ -12,15 +12,27 @@
 	export default {
 		data() {
 			return {
+				scoreCollection: null,
 				MIN_SCORE: 0,
 				MAX_SCORE: 100,
-				score: 1,
+				score: 0,
 			}
 		},
 		onLoad() {
-
+			this.init();
 		},
 		methods: {
+			async init() {
+				const scoreCollection = uniCloud.database().collection("score")
+				const res = await scoreCollection.where({
+					name: '热饭班长'
+				}).get()
+				const data = res.result.data?.[0];
+				if (data) {
+					this.score = data.score;
+				}
+				this.scoreCollection = scoreCollection
+			},
 			async updateScore(score) {
 				const {
 					MIN_SCORE,
@@ -45,12 +57,13 @@
 					return
 				}
 
-				const updateScoreObj = uniCloud.importObject('updateScore') // 导入云对象
-				
-				await updateScoreObj.main(score)
+				await this.scoreCollection.where({
+					name: '热饭班长'
+				}).update({
+					score: score,
+				})
 
 				this.score = score
-				wx.setStorageSync('score', score)
 			},
 			onIncrement() {
 				const {
