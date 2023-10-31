@@ -1,1 +1,0 @@
-.page{display:flex;align-items:center;justify-content:center;height:90vh}.container{display:flex;align-items:center;justify-content:center}.score{min-width:50rpx;padding:0 40rpx;text-align:center}.button{min-width:100rpx}

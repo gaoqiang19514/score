@@ -18,23 +18,57 @@
 				score: 0,
 			}
 		},
-		onLoad() {
-			this.init();
+		async onLoad() {
+			await this.login();
+			await this.init();
 		},
 		methods: {
-			async init() {
-				const scoreCollection = uniCloud.database().collection("score")
-				const res = await scoreCollection.where({
-					name: '热饭班长'
-				}).get()
-				const data = res.result.data?.[0];
-				if (data) {
-					this.score = data.score;
+			async login() {
+				const {
+					code
+				} = await wx.login();
+
+				if (!code) {
+					new Error('wx.login获取code失败');
 				}
-				this.scoreCollection = scoreCollection
+
+				const score = uniCloud.importObject('updateScore')
+				const {
+					openid
+				} = await score.main({
+					code
+				})
+
+				this.openid = openid;
+			},
+			async init() {
+				const {
+					openid
+				} = this;
+				const scoreCollection = uniCloud.database().collection("score")
+
+				const res = await scoreCollection.where({
+					openid
+				}).get()
+
+				if (res.result.data.length) {
+					const data = res.result.data?.[0];
+					if (data) {
+						this.score = data.score;
+						this.scoreCollection = scoreCollection
+					}
+				} else {
+					await scoreCollection.add({
+						openid,
+						score: 0,
+					})
+					this.scoreCollection = 0
+				}
+
 			},
 			async updateScore(score) {
 				const {
+					openid,
 					MIN_SCORE,
 					MAX_SCORE
 				} = this;
@@ -58,7 +92,7 @@
 				}
 
 				await this.scoreCollection.where({
-					name: '热饭班长'
+					openid
 				}).update({
 					score: score,
 				})
