@@ -19,9 +19,10 @@
 				score: 0,
 			}
 		},
-		async onLoad() {
-			await this.login();
-			await this.init();
+		onLoad() {
+			this.login().then(() => {
+				this.init();
+			})
 		},
 		methods: {
 			async login() {
@@ -33,13 +34,15 @@
 					new Error('wx.login获取code失败');
 				}
 
+				console.log('code', code)
+
 				const score = uniCloud.importObject('updateScore')
 				const {
 					openid
 				} = await score.main({
 					code
 				})
-
+				console.log('openid', openid)
 				if (!openid) {
 					wx.showModal({
 						title: '提示',
