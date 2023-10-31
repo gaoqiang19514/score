@@ -12,6 +12,7 @@
 	export default {
 		data() {
 			return {
+				openid: '',
 				scoreCollection: null,
 				MIN_SCORE: 0,
 				MAX_SCORE: 100,
@@ -39,12 +40,29 @@
 					code
 				})
 
+				if (!openid) {
+					wx.showModal({
+						title: '提示',
+						content: 'openid获取失败'
+					})
+					return;
+				}
+
 				this.openid = openid;
 			},
 			async init() {
 				const {
 					openid
 				} = this;
+
+				if (!openid) {
+					wx.showModal({
+						title: '提示',
+						content: 'openid获取失败'
+					})
+					return;
+				}
+
 				const scoreCollection = uniCloud.database().collection("score")
 
 				const res = await scoreCollection.where({
