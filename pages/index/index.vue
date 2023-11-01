@@ -22,7 +22,8 @@
     async onLoad() {
       wx.showLoading()
       await this.login()
-      await this.init()
+      await this.loadCollection();
+      await this.loadRemoteScore()
       wx.hideLoading()
     },
     methods: {
@@ -56,9 +57,13 @@
 
         this.openid = data.openid;
       },
-      async init() {
+      loadCollection() {
+        this.scoreCollection = uniCloud.database().collection("score")
+      },
+      async loadRemoteScore() {
         const {
           openid
+          scoreCollection,
         } = this;
 
         if (!openid) {
@@ -69,8 +74,6 @@
           return;
         }
 
-        const scoreCollection = uniCloud.database().collection("score")
-
         const res = await scoreCollection.where({
           openid
         }).get()
@@ -79,16 +82,13 @@
           const data = res.result.data?.[0];
           if (data) {
             this.score = data.score;
-            this.scoreCollection = scoreCollection
           }
         } else {
           await scoreCollection.add({
             openid,
             score: 0,
           })
-          this.scoreCollection = 0
         }
-
       },
       async updateScore(score) {
         const {
@@ -115,13 +115,16 @@
           return
         }
 
-        await this.scoreCollection.where({
-          openid
-        }).update({
-          score: score,
-        })
-
-        this.score = score
+        try {
+          await this.scoreCollection.where({
+            openid
+          }).update({
+            score: score,
+          })
+          this.score = score
+        } catch (err) {
+          console.error(err)
+        }
       },
       onIncrement() {
         const {

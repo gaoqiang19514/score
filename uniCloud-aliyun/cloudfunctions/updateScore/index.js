@@ -2,10 +2,6 @@
 exports.main = async (event, context) => {
   const code = event.code;
 
-  //event为客户端上传的参数
-  console.log('code', code)
-
-
   if (code) {
     const result = await uniCloud.httpProxyForEip.get("https://api.weixin.qq.com/sns/jscode2session", {
       'js_code': code,
@@ -13,7 +9,6 @@ exports.main = async (event, context) => {
       'secret': "5d6d6313094f4a2251d4f9a560a1dbdb",
       'grant_type': "authorization_code"
     })
-
     return result.body
   }
 
