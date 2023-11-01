@@ -1,167 +1,169 @@
 <template>
-	<view class="page">
-		<div class="container">
-			<button class="button" type="primary" @click="onDecrement" :disabled="score <= MIN_SCORE">-</button>
-			<div class="score">{{ score }}</div>
-			<button class="button" type="primary" @click="onIncrement" :disabled="score >= MAX_SCORE">+</button>
-		</div>
-	</view>
+  <view class="page">
+    <div class="container">
+      <button class="button" type="primary" @click="onDecrement" :disabled="score <= MIN_SCORE">-</button>
+      <div class="score">{{ score }}</div>
+      <button class="button" type="primary" @click="onIncrement" :disabled="score >= MAX_SCORE">+</button>
+    </div>
+  </view>
 </template>
 
 <script>
-	export default {
-		data() {
-			return {
-				openid: '',
-				scoreCollection: null,
-				MIN_SCORE: 0,
-				MAX_SCORE: 100,
-				score: 0,
-			}
-		},
-		async onLoad() {
-			wx.showLoading()
-			await this.login()
-			await this.init()
-			wx.hideLoading()
-		},
-		methods: {
-			async login() {
-				const {
-					code
-				} = await wx.login();
+  export default {
+    data() {
+      return {
+        openid: '',
+        scoreCollection: null,
+        MIN_SCORE: 0,
+        MAX_SCORE: 100,
+        score: 0,
+      }
+    },
+    async onLoad() {
+      wx.showLoading()
+      await this.login()
+      await this.init()
+      wx.hideLoading()
+    },
+    methods: {
+      async login() {
+        const {
+          code
+        } = await wx.login();
 
-				if (!code) {
-					new Error('wx.login获取code失败');
-				}
-				
-				const { result } = await uniCloud.callFunction({
-					name: 'updateScore',
-					data: {
-						code
-					}
-				})
-				
-				const data = JSON.parse(result)
+        if (!code) {
+          new Error('wx.login获取code失败');
+        }
 
-				if (!data.openid) {
-					wx.showModal({
-						title: '提示',
-						content: 'openid获取失败'
-					})
-					return;
-				}
+        const {
+          result
+        } = await uniCloud.callFunction({
+          name: 'updateScore',
+          data: {
+            code
+          }
+        })
 
-				this.openid = data.openid;
-			},
-			async init() {
-				const {
-					openid
-				} = this;
+        const data = JSON.parse(result)
 
-				if (!openid) {
-					wx.showModal({
-						title: '提示',
-						content: 'openid获取失败'
-					})
-					return;
-				}
+        if (!data.openid) {
+          wx.showModal({
+            title: '提示',
+            content: 'openid获取失败'
+          })
+          return;
+        }
 
-				const scoreCollection = uniCloud.database().collection("score")
+        this.openid = data.openid;
+      },
+      async init() {
+        const {
+          openid
+        } = this;
 
-				const res = await scoreCollection.where({
-					openid
-				}).get()
+        if (!openid) {
+          wx.showModal({
+            title: '提示',
+            content: 'openid获取失败'
+          })
+          return;
+        }
 
-				if (res.result.data.length) {
-					const data = res.result.data?.[0];
-					if (data) {
-						this.score = data.score;
-						this.scoreCollection = scoreCollection
-					}
-				} else {
-					await scoreCollection.add({
-						openid,
-						score: 0,
-					})
-					this.scoreCollection = 0
-				}
+        const scoreCollection = uniCloud.database().collection("score")
 
-			},
-			async updateScore(score) {
-				const {
-					openid,
-					MIN_SCORE,
-					MAX_SCORE
-				} = this;
+        const res = await scoreCollection.where({
+          openid
+        }).get()
 
-				if (score > MAX_SCORE) {
-					wx.showToast({
-						mask: true,
-						icon: 'none',
-						title: '不能大于100',
-					})
-					return
-				}
+        if (res.result.data.length) {
+          const data = res.result.data?.[0];
+          if (data) {
+            this.score = data.score;
+            this.scoreCollection = scoreCollection
+          }
+        } else {
+          await scoreCollection.add({
+            openid,
+            score: 0,
+          })
+          this.scoreCollection = 0
+        }
 
-				if (score < MIN_SCORE) {
-					wx.showToast({
-						mask: true,
-						icon: 'none',
-						title: '不能小于0',
-					})
-					return
-				}
+      },
+      async updateScore(score) {
+        const {
+          openid,
+          MIN_SCORE,
+          MAX_SCORE
+        } = this;
 
-				await this.scoreCollection.where({
-					openid
-				}).update({
-					score: score,
-				})
+        if (score > MAX_SCORE) {
+          wx.showToast({
+            mask: true,
+            icon: 'none',
+            title: '不能大于100',
+          })
+          return
+        }
 
-				this.score = score
-			},
-			onIncrement() {
-				const {
-					score
-				} = this
+        if (score < MIN_SCORE) {
+          wx.showToast({
+            mask: true,
+            icon: 'none',
+            title: '不能小于0',
+          })
+          return
+        }
 
-				const nextScore = score + 1
-				this.updateScore(nextScore)
-			},
-			onDecrement() {
-				const {
-					score
-				} = this
+        await this.scoreCollection.where({
+          openid
+        }).update({
+          score: score,
+        })
 
-				const nextScore = score - 1
-				this.updateScore(nextScore)
-			},
-		}
-	}
+        this.score = score
+      },
+      onIncrement() {
+        const {
+          score
+        } = this
+
+        const nextScore = score + 1
+        this.updateScore(nextScore)
+      },
+      onDecrement() {
+        const {
+          score
+        } = this
+
+        const nextScore = score - 1
+        this.updateScore(nextScore)
+      },
+    }
+  }
 </script>
 
 <style>
-	.page {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		height: 90vh;
-	}
+  .page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 90vh;
+  }
 
-	.container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-	.score {
-		min-width: 50rpx;
-		padding: 0 40rpx;
-		text-align: center;
-	}
+  .score {
+    min-width: 50rpx;
+    padding: 0 40rpx;
+    text-align: center;
+  }
 
-	.button {
-		min-width: 100rpx;
-	}
+  .button {
+    min-width: 100rpx;
+  }
 </style>
