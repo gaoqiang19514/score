@@ -19,10 +19,11 @@
 				score: 0,
 			}
 		},
-		onLoad() {
-			this.login().then(() => {
-				this.init();
-			})
+		async onLoad() {
+			wx.showLoading()
+			await this.login()
+			await this.init()
+			wx.hideLoading()
 		},
 		methods: {
 			async login() {
@@ -33,17 +34,17 @@
 				if (!code) {
 					new Error('wx.login获取code失败');
 				}
-
-				console.log('code', code)
-
-				const score = uniCloud.importObject('updateScore')
-				const {
-					openid
-				} = await score.main({
-					code
+				
+				const { result } = await uniCloud.callFunction({
+					name: 'updateScore',
+					data: {
+						code
+					}
 				})
-				console.log('openid', openid)
-				if (!openid) {
+				
+				const data = JSON.parse(result)
+
+				if (!data.openid) {
 					wx.showModal({
 						title: '提示',
 						content: 'openid获取失败'
@@ -51,7 +52,7 @@
 					return;
 				}
 
-				this.openid = openid;
+				this.openid = data.openid;
 			},
 			async init() {
 				const {
