@@ -5,10 +5,15 @@
       <div class="score">{{ score }}</div>
       <button class="button" type="primary" @click="onIncrement" :disabled="score >= MAX_SCORE">+</button>
     </div>
+    <button type="primary" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+      <image class="avatar" :src="avatarUrl"></image>
+    </button>
   </view>
 </template>
 
 <script>
+  const defaultAvatarUrl =
+    'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
   export default {
     data() {
       return {
@@ -17,6 +22,7 @@
         MIN_SCORE: 0,
         MAX_SCORE: 100,
         score: 0,
+        avatarUrl: defaultAvatarUrl,
       }
     },
     async onLoad() {
@@ -62,7 +68,7 @@
       },
       async loadRemoteScore() {
         const {
-          openid
+          openid,
           scoreCollection,
         } = this;
 
@@ -142,6 +148,12 @@
         const nextScore = score - 1
         this.updateScore(nextScore)
       },
+      onChooseAvatar(e) {
+        const {
+          avatarUrl
+        } = e.detail
+        this.avatarUrl = avatarUrl
+      }
     }
   }
 </script>
