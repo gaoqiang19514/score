@@ -1,21 +1,27 @@
 {
-	"bsonType": "object",
-	"required": [],
-	"permission": {
-		"read": true,
-		"create": true,
-		"update": true,
-		"delete": false
-	},
-	"properties": {
-		"_id": {
-			"description": "ID，系统自动生成"
-		},
-		"openid": {
-			"description": "微信用户唯一标识"
-		},
-		"score": {
-			"description": "分数"
-		}
-	}
+  "bsonType": "object",
+  "required": [],
+  "permission": {
+    "read": true,
+    "create": true,
+    "update": true,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "openid": {
+      "description": "微信用户唯一标识"
+    },
+    "score": {
+      "description": "分数"
+    },
+    "avatar": {
+      "description": "用户头像"
+    },
+    "nickname": {
+      "description": "用户昵称"
+    }
+  }
 }

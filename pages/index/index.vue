@@ -5,24 +5,18 @@
       <div class="score">{{ score }}</div>
       <button class="button" type="primary" @click="onIncrement" :disabled="score >= MAX_SCORE">+</button>
     </div>
-    <button type="primary" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-      <image class="avatar" :src="avatarUrl"></image>
-    </button>
   </view>
 </template>
 
 <script>
-  const defaultAvatarUrl =
-    'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
   export default {
     data() {
       return {
         openid: '',
-        scoreCollection: null,
+        db: null,
         MIN_SCORE: 0,
         MAX_SCORE: 100,
         score: 0,
-        avatarUrl: defaultAvatarUrl,
       }
     },
     async onLoad() {
@@ -42,34 +36,32 @@
           new Error('wx.login获取code失败');
         }
 
-        const {
-          result
-        } = await uniCloud.callFunction({
-          name: 'updateScore',
-          data: {
-            code
+        // 使用code换取openid
+        try {
+          const account = uniCloud.importObject('account')
+          const res = await account.getOpenid(code)
+
+          if (!res.openid) {
+            wx.showModal({
+              title: '提示',
+              content: 'openid获取失败'
+            })
+            return;
           }
-        })
 
-        const data = JSON.parse(result)
-
-        if (!data.openid) {
-          wx.showModal({
-            title: '提示',
-            content: 'openid获取失败'
-          })
-          return;
+          this.openid = res.openid;
+        } catch (err) {
+          console.log(err.errCode)
+          console.log(err.errMsg)
         }
-
-        this.openid = data.openid;
       },
       loadCollection() {
-        this.scoreCollection = uniCloud.database().collection("score")
+        this.db = uniCloud.database().collection("score")
       },
       async loadRemoteScore() {
         const {
           openid,
-          scoreCollection,
+          db,
         } = this;
 
         if (!openid) {
@@ -80,7 +72,7 @@
           return;
         }
 
-        const res = await scoreCollection.where({
+        const res = await db.where({
           openid
         }).get()
 
@@ -90,7 +82,7 @@
             this.score = data.score;
           }
         } else {
-          await scoreCollection.add({
+          await db.add({
             openid,
             score: 0,
           })
@@ -122,7 +114,7 @@
         }
 
         try {
-          await this.scoreCollection.where({
+          await this.db.where({
             openid
           }).update({
             score: score,
@@ -148,12 +140,6 @@
         const nextScore = score - 1
         this.updateScore(nextScore)
       },
-      onChooseAvatar(e) {
-        const {
-          avatarUrl
-        } = e.detail
-        this.avatarUrl = avatarUrl
-      }
     }
   }
 </script>
