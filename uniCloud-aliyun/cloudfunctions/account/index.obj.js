@@ -47,7 +47,7 @@ module.exports = {
   },
   async setUserAvatar(url, openid) {
     console.log('uniCloud.logger', uniCloud.logger)
-
+    
     // 参数校验，如无参数则不需要
     if (!url) {
       return {
@@ -59,7 +59,7 @@ module.exports = {
     const db = uniCloud.database();
     const collection = db.collection('score');
 
-    await this.db.where({
+    await collection.where({
       openid
     }).update({
       avatar: url

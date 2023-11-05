@@ -9,6 +9,10 @@
 </template>
 
 <script>
+  import {
+    setOpenid
+  } from '@/util.js'
+
   export default {
     data() {
       return {
@@ -16,7 +20,7 @@
         db: null,
         MIN_SCORE: 0,
         MAX_SCORE: 100,
-        score: 0,
+        score: 0
       }
     },
     async onLoad() {
@@ -49,10 +53,12 @@
             return;
           }
 
+          // 保存openid
+          setOpenid(res.openid)
+
           this.openid = res.openid;
         } catch (err) {
-          console.log(err.errCode)
-          console.log(err.errMsg)
+          console.log(err)
         }
       },
       loadCollection() {
