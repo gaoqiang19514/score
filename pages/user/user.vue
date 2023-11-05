@@ -5,23 +5,16 @@
         <div class="item border">
           <div>头像</div>
           <div>
-            <button type="primary" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-              <image class="avatar" :src="avatarUrl" />
+            <button class="avatar-wrapper" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+              <image class="avatar" :src="avatarUrl"></image>
             </button>
           </div>
         </div>
         <div class="item">
           <div>昵称</div>
-          <div>
-            <button open-type="getUserInfo" @getuserinfo="onUserinfo"> Click me </button>
-          </div>
+          <input type="nickname" class="input" placeholder="请输入昵称" />
         </div>
       </div>
-    </div>
-    <div class="bottom">
-      <button type="primary">
-        退出登录
-      </button>
     </div>
   </div>
 </template>
@@ -30,7 +23,7 @@
   import {
     getOpenid
   } from '@/util.js'
-  
+
   const defaultAvatarUrl =
     'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
 
@@ -42,13 +35,11 @@
       }
     },
     methods: {
-      onUserinfo(e) {
-      },
+      onUserinfo(e) {},
       async onChooseAvatar(e) {
         const {
           avatarUrl
         } = e.detail
-
 
         if (!avatarUrl) {
           return;
@@ -97,18 +88,19 @@
     border-bottom: 1px solid #ccc;
   }
 
-  .bottom {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 30rpx;
+  .avatar-wrapper {
+    padding: 0;
+    width: 56px !important;
+    border-radius: 5rpx;
   }
 
   .avatar {
-    margin-bottom: 30rpx;
-    width: 50rpx;
-    height: 50rpx;
-    border-radius: 10rpx;
+    display: block;
+    width: 56px;
+    height: 56px;
+  }
+
+  .input {
+    text-align: right;
   }
 </style>
