@@ -36,12 +36,19 @@
     },
     methods: {
       async onBlur(e) {
+        const openid = getOpenid();
         const {
           value
         } = e.detail
-        const openid = getOpenid();
+        const {
+          nickname
+        } = this;
 
         if (!value) {
+          return;
+        }
+
+        if (value === nickname) {
           return;
         }
 
