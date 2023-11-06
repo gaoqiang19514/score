@@ -1,16 +1,15 @@
 {
-  "pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+  "pages": [{
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "自我计分器"
+      }
+    },
     {
       "path": "pages/user/user",
       "style": {
         "navigationBarTitleText": "",
         "enablePullDownRefresh": false
-      }
-    },
-    {
-      "path": "pages/index/index",
-      "style": {
-        "navigationBarTitleText": "自我计分器"
       }
     }
   ],
@@ -28,5 +27,16 @@
       "path": "", //启动页面，必选
       "query": "" //启动参数，在页面的onLoad函数里面得到
     }]
+  },
+  "tabBar": {
+    "list": [{
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "我的"
+      }
+    ]
   }
 }
