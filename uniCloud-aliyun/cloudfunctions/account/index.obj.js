@@ -47,7 +47,7 @@ module.exports = {
   },
   async setUserAvatar(url, openid) {
     console.log('uniCloud.logger', uniCloud.logger)
-    
+
     // 参数校验，如无参数则不需要
     if (!url) {
       return {
@@ -66,8 +66,58 @@ module.exports = {
     })
 
     return {
-      "errCode": '0',
-      "errMsg": '操作成功'
+      "errCode": '',
+      "errMsg": ''
     }
+  },
+  async setNickname(nickname, openid) {
+    console.log('uniCloud.logger', uniCloud.logger)
+
+    // 参数校验，如无参数则不需要
+    if (!nickname) {
+      return {
+        errCode: 'PARAM_IS_NULL',
+        errMsg: '参数不能为空'
+      }
+    }
+
+    const db = uniCloud.database();
+    const collection = db.collection('score');
+
+    await collection.where({
+      openid
+    }).update({
+      nickname
+    })
+
+    return {
+      "errCode": '',
+      "errMsg": ''
+    }
+  },
+  async getUserinfo(openid) {
+    // 参数校验，如无参数则不需要
+    if (!openid) {
+      return {
+        errCode: 'PARAM_IS_NULL',
+        errMsg: '参数不能为空'
+      }
+    }
+
+    const db = uniCloud.database();
+    const collection = db.collection('score');
+
+    const res = await collection.where({
+      openid
+    }).get();
+
+    if (!res.data.length) {
+      return {
+        errCode: '-1',
+        errMsg: '获取用户信息失败'
+      }
+    }
+
+    return res.data[0]
   }
 }

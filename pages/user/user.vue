@@ -12,7 +12,7 @@
         </div>
         <div class="item">
           <div>昵称</div>
-          <input type="nickname" class="input" placeholder="请输入昵称" />
+          <input type="nickname" class="input" :value="nickname" placeholder="请输入昵称" @blur="onBlur" />
         </div>
       </div>
     </div>
@@ -27,19 +27,40 @@
   const defaultAvatarUrl =
     'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
 
-
   export default {
     data() {
       return {
         avatarUrl: defaultAvatarUrl,
+        nickname: '',
       }
     },
     methods: {
-      onUserinfo(e) {},
+      async onBlur(e) {
+        const {
+          value
+        } = e.detail
+        const openid = getOpenid();
+
+        if (!value) {
+          return;
+        }
+
+        wx.showLoading()
+
+        try {
+          const account = uniCloud.importObject('account')
+          await account.setNickname(value, openid)
+        } catch (err) {
+          console.error(err)
+        }
+
+        wx.hideLoading()
+      },
       async onChooseAvatar(e) {
         const {
           avatarUrl
         } = e.detail
+        const openid = getOpenid();
 
         if (!avatarUrl) {
           return;
@@ -50,7 +71,6 @@
         wx.showLoading()
 
         try {
-          const openid = getOpenid();
           const account = uniCloud.importObject('account')
           await account.setUserAvatar(avatarUrl, openid)
           this.avatarUrl = avatarUrl
@@ -59,7 +79,21 @@
         }
 
         wx.hideLoading()
+      },
+      async loadData() {
+        try {
+          const openid = getOpenid();
+          const account = uniCloud.importObject('account')
+          const res = await account.getUserinfo(openid)
+          this.avatarUrl = res.avatar
+          this.nickname = res.nickname
+        } catch (err) {
+          console.error(err)
+        }
       }
+    },
+    mounted() {
+      this.loadData();
     }
   }
 </script>
