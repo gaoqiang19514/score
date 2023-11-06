@@ -14,10 +14,7 @@
     }
   ],
   "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "自我计分器",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
+    "navigationStyle": "custom"
   },
   "uniIdRouter": {},
   "condition": { //模式配置，仅开发期间生效
